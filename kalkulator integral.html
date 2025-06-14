@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="id">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Kalkulator Integral Sederhana</title>
+    <style>
+      @import url("https://fonts.googleapis.com/css2?family=Inter&display=swap");
+      body {
+        font-family: "Inter", sans-serif;
+        background: #f9fafb;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100vh;
+        margin: 0;
+      }
+      .container {
+        background: white;
+        padding: 2rem;
+        border-radius: 12px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        width: 320px;
+        text-align: center;
+      }
+      h1 {
+        font-weight: 600;
+        margin-bottom: 1rem;
+        color: #2563eb;
+      }
+      label {
+        display: block;
+        text-align: left;
+        margin-bottom: 6px;
+        font-weight: 500;
+        color: #374151;
+      }
+      input[type="text"] {
+        width: 100%;
+        padding: 8px 12px;
+        margin-bottom: 1rem;
+        border: 1px solid #d1d5db;
+        border-radius: 6px;
+        box-sizing: border-box;
+        font-size: 1rem;
+      }
+      button {
+        width: 100%;
+        padding: 10px;
+        background: #2563eb;
+        color: white;
+        border: none;
+        border-radius: 8px;
+        font-weight: 600;
+        font-size: 1rem;
+        cursor: pointer;
+        transition: background 0.3s;
+      }
+      button:hover {
+        background: #1e40af;
+      }
+      #result {
+        margin-top: 1rem;
+        min-height: 2.5rem;
+        font-size: 1rem;
+        color: #111827;
+        word-wrap: break-word;
+        white-space: pre-wrap;
+      }
+      #result.error {
+        color: #dc2626;
+      }
+    </style>
+  </head>
+  <body>
+    <div
+      class="container"
+      role="main"
+      aria-label="Kalkulator Integral Sederhana"
+    >
+      <h1>Kalkulator Integral</h1>
+      <form id="calc-form" aria-describedby="desc" novalidate>
+        <label for="func">Fungsi f(x):</label>
+        <input
+          type="text"
+          id="func"
+          name="func"
+          placeholder="misal: x^2 + 3*x + 1"
+          required
+          aria-required="true"
+        />
+        <label for="limit-a">Batas bawah (opsional):</label>
+        <input type="text" id="limit-a" name="limitA" placeholder="misal: 0" />
+        <label for="limit-b">Batas atas (opsional):</label>
+        <input type="text" id="limit-b" name="limitB" placeholder="misal: 1" />
+        <button type="submit" aria-label="Hitung integral">Hitung</button>
+      </form>
+      <div
+        id="desc"
+        style="margin-top: 0.5rem; font-size: 0.875rem; color: #6b7280"
+      >
+        Masukkan fungsi dan batas integrasi jika ingin menghitung integral
+        tentu. Kosongkan batas untuk integral tak tentu.
+      </div>
+      <div id="result" aria-live="polite" aria-atomic="true"></div>
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/algebrite@1.5.0/dist/algebrite.bundle-for-browser.min.js"></script>
+    <script>
+      const form = document.getElementById("calc-form");
+      const resultEl = document.getElementById("result");
+
+      form.addEventListener("submit", (e) => {
+        e.preventDefault();
+        resultEl.textContent = "";
+        resultEl.classList.remove("error");
+
+        let expr = form.func.value.trim();
+        let a = form.limitA.value.trim();
+        let b = form.limitB.value.trim();
+
+        if (!expr) {
+          resultEl.textContent = "Silakan masukkan fungsi untuk diintegralkan.";
+          resultEl.classList.add("error");
+          return;
+        }
+
+        const isValidNumber = (str) => str !== "" && !isNaN(str);
+
+        try {
+          if (a !== "" && b !== "") {
+            if (!(isValidNumber(a) && isValidNumber(b))) {
+              resultEl.textContent = "Batas harus berupa angka yang valid.";
+              resultEl.classList.add("error");
+              return;
+            }
+            const definite = Algebrite.eval(
+              `defint(${expr}, x, ${a}, ${b})`
+            ).toString();
+            resultEl.textContent = `Integral tentu dari ${a} sampai ${b}:\n${definite}`;
+          } else {
+            const indefinite = Algebrite.integral(expr).toString();
+            resultEl.textContent = `Integral tak tentu:\n${indefinite} + C`;
+          }
+        } catch (error) {
+          resultEl.textContent =
+            "Terjadi kesalahan dalam perhitungan integral. Mohon periksa input Anda.";
+          resultEl.classList.add("error");
+        }
+      });
+    </script>
+  </body>
+</html>

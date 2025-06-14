@@ -1,0 +1,483 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Elegant Q&A with Admin Answering</title>
+    <style>
+      @import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap");
+
+      /* Reset & base */
+      *,
+      *::before,
+      *::after {
+        box-sizing: border-box;
+      }
+      html {
+        font-size: 16px;
+        scroll-behavior: smooth;
+      }
+      body {
+        margin: 0;
+        font-family: "Inter", sans-serif;
+        background: linear-gradient(135deg, #f0f4f8, #d9e2ec);
+        color: #1f2937;
+        min-height: 100vh;
+        display: flex;
+        flex-direction: column;
+      }
+
+      /* Header */
+      header {
+        background: rgba(255 255 255 / 0.9);
+        backdrop-filter: blur(12px);
+        box-shadow: 0 4px 16px rgba(31, 41, 55, 0.05);
+        padding: 1.5rem 2rem;
+        position: sticky;
+        top: 0;
+        z-index: 1000;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+
+      header h1 {
+        font-weight: 700;
+        font-size: 1.75rem;
+        color: #2c3e50;
+        margin: 0;
+        user-select: none;
+      }
+      header button#mode-toggle {
+        background: linear-gradient(135deg, #2563eb, #4f46e5);
+        border: none;
+        border-radius: 12px;
+        color: #fff;
+        padding: 0.5rem 1rem;
+        font-weight: 600;
+        font-size: 0.9rem;
+        cursor: pointer;
+        box-shadow: 0 4px 14px rgba(62, 88, 243, 0.5);
+        transition: background 0.3s ease, transform 0.2s ease;
+      }
+      header button#mode-toggle:hover,
+      header button#mode-toggle:focus-visible {
+        background: linear-gradient(135deg, #1d4ed8, #4338ca);
+        transform: translateY(-2px);
+        outline-offset: 3px;
+      }
+      header button#mode-toggle:active {
+        transform: translateY(0);
+      }
+
+      main {
+        flex: 1;
+        max-width: 720px;
+        width: 90%;
+        margin: 2rem auto 4rem;
+        background: rgba(255 255 255 / 0.85);
+        border-radius: 16px;
+        box-shadow: 0 8px 24px rgba(31, 41, 55, 0.1);
+        padding: 2rem 2.5rem;
+        backdrop-filter: saturate(180%) blur(20px);
+        display: flex;
+        flex-direction: column;
+        gap: 2rem;
+      }
+
+      /* Form styles */
+      form {
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+      }
+      form label {
+        font-weight: 600;
+        font-size: 1rem;
+        color: #34495e;
+      }
+      textarea,
+      input[type="text"] {
+        resize: vertical;
+        min-height: 80px;
+        font-size: 1rem;
+        padding: 0.75rem 1rem;
+        border-radius: 12px;
+        border: 1.5px solid #cbd5e1;
+        transition: border-color 0.25s ease;
+        font-family: inherit;
+        color: #1f2937;
+        background: #fff;
+      }
+      textarea:focus,
+      input[type="text"]:focus {
+        outline: none;
+        border-color: #2563eb;
+        box-shadow: 0 0 8px rgba(37, 99, 235, 0.3);
+      }
+
+      button {
+        align-self: flex-start;
+        background: linear-gradient(135deg, #2563eb, #4f46e5);
+        border: none;
+        border-radius: 14px;
+        color: #fff;
+        padding: 0.8rem 2.5rem;
+        font-weight: 700;
+        font-size: 1rem;
+        cursor: pointer;
+        box-shadow: 0 4px 14px rgba(62, 88, 243, 0.5);
+        transition: background 0.3s ease, transform 0.2s ease;
+      }
+      button:hover,
+      button:focus-visible {
+        background: linear-gradient(135deg, #1d4ed8, #4338ca);
+        transform: translateY(-2px);
+        outline-offset: 3px;
+      }
+      button:active {
+        transform: translateY(0);
+      }
+
+      /* Q&A list */
+      section.qna-list {
+        margin-top: 0;
+        display: flex;
+        flex-direction: column;
+        gap: 1.8rem;
+      }
+
+      /* Card style for each Q&A */
+      article.qna-item {
+        background: #ffffffd0;
+        border-radius: 16px;
+        box-shadow: 0 6px 20px rgb(31 41 55 / 0.08);
+        padding: 1.6rem 2rem;
+        transition: box-shadow 0.3s ease;
+      }
+      article.qna-item:hover {
+        box-shadow: 0 10px 30px rgb(31 41 55 / 0.15);
+      }
+
+      article.qna-item > .question {
+        font-weight: 700;
+        font-size: 1.125rem;
+        color: #2563eb;
+        margin-bottom: 1rem;
+      }
+
+      article.qna-item > .answer {
+        font-size: 1rem;
+        color: #4b5563;
+        line-height: 1.6;
+        white-space: pre-wrap;
+      }
+
+      /* Admin answer form inside Q&A card */
+      .admin-answer-form {
+        display: flex;
+        flex-direction: column;
+        gap: 0.8rem;
+        margin-top: 1rem;
+      }
+      .admin-answer-form textarea {
+        min-height: 60px;
+        font-size: 0.95rem;
+      }
+      .admin-answer-form button {
+        align-self: flex-end;
+        padding: 0.5rem 1.5rem;
+        font-size: 0.9rem;
+      }
+
+      /* Responsive adjustments */
+      @media (max-width: 640px) {
+        main {
+          width: 95%;
+          padding: 1.5rem 1.75rem;
+        }
+        button {
+          width: 100%;
+          padding: 1rem 0;
+        }
+        header {
+          flex-wrap: wrap;
+          justify-content: center;
+          gap: 0.75rem;
+        }
+        header h1 {
+          flex: 1 1 100%;
+          text-align: center;
+        }
+        header button#mode-toggle {
+          flex: 1 1 auto;
+          max-width: 200px;
+          min-width: 150px;
+        }
+      }
+
+      /* Accessibility */
+      button:focus-visible,
+      textarea:focus-visible,
+      input[type="text"]:focus-visible {
+        outline: 3px solid #2563eb;
+        outline-offset: 3px;
+      }
+    </style>
+  </head>
+  <body>
+    <header>
+      <h1>Elegant Q&amp;A</h1>
+      <button
+        id="mode-toggle"
+        aria-pressed="false"
+        aria-label="Toggle between user and admin modes"
+      >
+        Switch to Admin Mode
+      </button>
+    </header>
+    <main>
+      <!-- User mode question form -->
+      <section id="user-mode-section" aria-label="Submit your question">
+        <form id="question-form" aria-describedby="instructions" novalidate>
+          <label for="question-input">Ask your question</label>
+          <textarea
+            id="question-input"
+            name="question"
+            placeholder="Type your question here..."
+            required
+            rows="3"
+            aria-required="true"
+          ></textarea>
+          <button type="submit" aria-label="Submit question">
+            Submit Question
+          </button>
+        </form>
+        <p
+          id="instructions"
+          style="color: #6b7280; margin-top: 1rem; font-style: italic"
+        >
+          Your question will be visible here after submission and answered by
+          admin.
+        </p>
+      </section>
+
+      <!-- Admin mode question list with answers -->
+      <section
+        id="admin-mode-section"
+        aria-label="Admin: Manage questions and answers"
+        hidden
+      >
+        <h2 style="font-weight: 700; color: #34495e; margin-bottom: 1.5rem">
+          Questions Awaiting Answers
+        </h2>
+        <section
+          class="qna-list"
+          aria-live="polite"
+          aria-label="List of users questions and answers"
+          id="admin-qna-list"
+        >
+          <!-- Questions will render here -->
+        </section>
+      </section>
+    </main>
+    <script>
+      (() => {
+        const STORAGE_KEY = "elegant_qna_admin_data";
+        const ADMIN_PASSWORD = "admin123"; // Change this password as needed
+
+        // Elements for user mode
+        const userModeSection = document.getElementById("user-mode-section");
+        const questionForm = document.getElementById("question-form");
+        const questionInput = document.getElementById("question-input");
+
+        // Elements for admin mode
+        const adminModeSection = document.getElementById("admin-mode-section");
+        const adminQnaList = document.getElementById("admin-qna-list");
+
+        // Mode toggle button / state
+        const modeToggleBtn = document.getElementById("mode-toggle");
+        let isAdminMode = false;
+
+        // Load Q&A data from localStorage
+        let qnaData = JSON.parse(localStorage.getItem(STORAGE_KEY) || "[]");
+
+        // Save Q&A data back to localStorage
+        function saveData() {
+          localStorage.setItem(STORAGE_KEY, JSON.stringify(qnaData));
+        }
+
+        // Render Q&A list for user mode (only answered questions)
+        function renderUserQnA() {
+          // Clear current user QnA visible below form
+          let existingList = userModeSection.querySelector(".qna-list");
+          if (existingList) existingList.remove();
+
+          const container = document.createElement("section");
+          container.className = "qna-list";
+          container.setAttribute("aria-live", "polite");
+          container.setAttribute("aria-label", "List of answered questions");
+
+          const answered = qnaData.filter(
+            (item) => item.answer && item.answer.trim() !== ""
+          );
+
+          if (answered.length === 0) {
+            const emptyMsg = document.createElement("p");
+            emptyMsg.textContent = "No answered questions yet.";
+            emptyMsg.style.color = "#6b7280";
+            emptyMsg.style.fontStyle = "italic";
+            emptyMsg.style.textAlign = "center";
+            container.appendChild(emptyMsg);
+          } else {
+            answered.forEach(({ question, answer }) => {
+              const article = document.createElement("article");
+              article.className = "qna-item";
+              article.tabIndex = 0;
+
+              const qEl = document.createElement("div");
+              qEl.className = "question";
+              qEl.textContent = question;
+
+              const aEl = document.createElement("div");
+              aEl.className = "answer";
+              aEl.textContent = answer;
+
+              article.appendChild(qEl);
+              article.appendChild(aEl);
+
+              container.appendChild(article);
+            });
+          }
+          userModeSection.appendChild(container);
+        }
+
+        // Render Q&A list for admin mode (list all questions; show answer form for unanswered)
+        function renderAdminQnA() {
+          adminQnaList.innerHTML = "";
+          if (qnaData.length === 0) {
+            const emptyMsg = document.createElement("p");
+            emptyMsg.textContent = "No questions submitted yet.";
+            emptyMsg.style.color = "#6b7280";
+            emptyMsg.style.fontStyle = "italic";
+            emptyMsg.style.textAlign = "center";
+            adminQnaList.appendChild(emptyMsg);
+            return;
+          }
+
+          qnaData.forEach((item, index) => {
+            const article = document.createElement("article");
+            article.className = "qna-item";
+            article.setAttribute("data-index", index);
+
+            const qEl = document.createElement("div");
+            qEl.className = "question";
+            qEl.textContent = item.question;
+
+            article.appendChild(qEl);
+
+            if (item.answer && item.answer.trim() !== "") {
+              const aEl = document.createElement("div");
+              aEl.className = "answer";
+              aEl.textContent = item.answer;
+              article.appendChild(aEl);
+            } else {
+              // Show admin form to add answer
+              const answerForm = document.createElement("form");
+              answerForm.className = "admin-answer-form";
+              answerForm.setAttribute("aria-label", "Answer form for question");
+
+              const label = document.createElement("label");
+              label.textContent = "Your Answer";
+              label.setAttribute("for", `answer-input-${index}`);
+
+              const textarea = document.createElement("textarea");
+              textarea.id = `answer-input-${index}`;
+              textarea.name = "answer";
+              textarea.rows = 3;
+              textarea.placeholder = "Type your answer here...";
+              textarea.required = true;
+
+              const submitBtn = document.createElement("button");
+              submitBtn.type = "submit";
+              submitBtn.textContent = "Save Answer";
+
+              answerForm.appendChild(label);
+              answerForm.appendChild(textarea);
+              answerForm.appendChild(submitBtn);
+
+              // Handle answer submission
+              answerForm.addEventListener("submit", (e) => {
+                e.preventDefault();
+                const answerVal = textarea.value.trim();
+                if (!answerVal) {
+                  textarea.focus();
+                  return;
+                }
+                qnaData[index].answer = answerVal;
+                saveData();
+                renderAdminQnA();
+                renderUserQnA();
+              });
+
+              article.appendChild(answerForm);
+            }
+            adminQnaList.appendChild(article);
+          });
+        }
+
+        // Toggle modes with password on admin mode
+        function toggleMode() {
+          if (!isAdminMode) {
+            // Prompt for password
+            const pwd = prompt("Enter admin password to access admin mode:");
+            if (pwd === null) return; // User cancelled
+            if (pwd !== ADMIN_PASSWORD) {
+              alert("Incorrect password. Access denied.");
+              return;
+            }
+          }
+
+          isAdminMode = !isAdminMode;
+          if (isAdminMode) {
+            userModeSection.hidden = true;
+            adminModeSection.hidden = false;
+            modeToggleBtn.textContent = "Switch to User Mode";
+            modeToggleBtn.setAttribute("aria-pressed", "true");
+            renderAdminQnA();
+          } else {
+            userModeSection.hidden = false;
+            adminModeSection.hidden = true;
+            modeToggleBtn.textContent = "Switch to Admin Mode";
+            modeToggleBtn.setAttribute("aria-pressed", "false");
+            renderUserQnA();
+          }
+        }
+
+        // Handle user question submission
+        questionForm.addEventListener("submit", (e) => {
+          e.preventDefault();
+          const question = questionInput.value.trim();
+          if (!question) {
+            questionInput.focus();
+            return;
+          }
+          // Add question with empty answer
+          qnaData.unshift({ question, answer: "" });
+          saveData();
+
+          // Reset form
+          questionInput.value = "";
+          questionInput.focus();
+
+          renderUserQnA();
+        });
+
+        modeToggleBtn.addEventListener("click", toggleMode);
+
+        // Initial render user mode
+        renderUserQnA();
+      })();
+    </script>
+  </body>
+</html>
